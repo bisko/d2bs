@@ -44,7 +44,7 @@ PatchHook Patches[] = {
     {PatchJmp, GetDllOffset("Fog.dll", 0x1790), (DWORD)ErrorReportLaunch, 6}, // NEW 1.14d //00401790-BASE
 
     // Dont download/install new patch in case it comes out
-    {PatchJmp,GetDllOffset('Game.exe',0x3C044),(DWORD)D2GAME_exit0 ,5} //0043C044-BASE
+    {PatchJmp,GetDllOffset("Game.exe",0x3C044),(DWORD)D2GAME_exit0 ,5} //0043C044-BASE
 };
 
 PatchHook Conditional[] = {
