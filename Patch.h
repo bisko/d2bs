@@ -42,6 +42,9 @@ PatchHook Patches[] = {
     {PatchJmp, GetDllOffset("Fog.dll", 0x82E0), (DWORD)D2GAME_exit0, 6},              // NEW 1.14d //004082E0-BASE
     //{PatchJmp,  GetDllOffset("Fog.dll", 0x8900),		(DWORD)FogException/*D2GAME_exit0*/,		6}, //NEW 1.14d //00408900-BASE
     {PatchJmp, GetDllOffset("Fog.dll", 0x1790), (DWORD)ErrorReportLaunch, 6}, // NEW 1.14d //00401790-BASE
+
+    // Dont download/install new patch in case it comes out
+    {PatchJmp,GetDllOffset('Game.exe',0x3C044),(DWORD)D2GAME_exit0 ,5} //0043C044-BASE
 };
 
 PatchHook Conditional[] = {
