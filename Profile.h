@@ -24,14 +24,14 @@ class Profile {
     void init(ProfileType pt, const wchar_t* _ipUsername, const wchar_t* _password, const wchar_t* _charname, const wchar_t* _gateway, const wchar_t _diff,
               unsigned int _maxLoginTime, unsigned int _maxCharTime) {
         type = pt;
-        wcscpy_s(username, wcslen(username), _ipUsername);
-        wcscpy_s(password, wcslen(password), _password);
-        wcscpy_s(gateway, wcslen(gateway), _gateway);
-        wcscpy_s(charname, wcslen(charname), _charname);
+        wcscpy_s(username, _countof(username), _ipUsername);
+		wcscpy_s(password, _countof(password), _password);
+        wcscpy_s(gateway, _countof(gateway), _gateway);
+        wcscpy_s(charname, _countof(charname), _charname);
         diff = _diff;
         maxLoginTime = _maxLoginTime;
         maxCharTime = _maxCharTime;
-    }
+	}
 
   public:
     // Get the active profile
