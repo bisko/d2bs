@@ -176,54 +176,111 @@ BOOL OOG_CreateCharacter(const wchar_t* szCharacter, int type, bool hardcore, bo
     return FALSE;
 }
 
+wchar_t * LastCharacter() {
+	if (ClientState() != ClientStateMenu)
+        return NULL;
+
+	wchar_t * lastChar = L"";
+
+	// This is the last character profile on the screen - bottom right
+	Control * pControl = findControl(CONTROL_TEXTBOX, (const wchar_t*)NULL, -1, 309, 457, 200, 92);
+
+    if (pControl != NULL) {
+		ControlText* cText;
+        if (pControl->dwType == CONTROL_TEXTBOX && pControl->pFirstText != NULL && pControl->pFirstText->pNext != NULL)
+            cText = pControl->pFirstText->pNext;
+        else
+            cText = NULL;
+		
+        if (cText != NULL) {
+            if (!cText->wText[0])
+                return lastChar;
+			
+            lastChar = _wcsdup(cText->wText[0]);
+        }
+        pControl = pControl->pNext;
+    }
+    return lastChar;
+}
+
 BOOL OOG_SelectCharacter(const wchar_t* szCharacter) {
     if (ClientState() != ClientStateMenu)
         return NULL;
 
     // Select the first control on the character selection screen.
+	// 591/454
 
-    Control* pControl = findControl(CONTROL_TEXTBOX, (const wchar_t*)NULL, -1, 237, 178, 72, 93);
-    ControlText* cText;
+	
+	bool isDifferentLastChar = true;
+	do {	
+		Control* pControl = findControl(CONTROL_TEXTBOX, (const wchar_t*)NULL, -1, 237, 178, 72, 93);
+		ControlText* cText;
+		while (pControl != NULL) {
+			if (pControl->dwType == CONTROL_TEXTBOX && pControl->pFirstText != NULL && pControl->pFirstText->pNext != NULL)
+				cText = pControl->pFirstText->pNext;
+			else
+				cText = NULL;
+			
+			if (cText != NULL) {
+				
+				if (!cText->wText[0])
+					return FALSE;
+				
+				wchar_t* cLine = _wcsdup(cText->wText[0]);
+				wchar_t* cCharacter = _wcsdup(szCharacter);
+				StringToLower(cLine);
+				StringToLower(cCharacter);
 
-    while (pControl != NULL) {
-        if (pControl->dwType == CONTROL_TEXTBOX && pControl->pFirstText != NULL && pControl->pFirstText->pNext != NULL)
-            cText = pControl->pFirstText->pNext;
-        else
-            cText = NULL;
+				if (wcslen(cLine) == wcslen(cCharacter) && wcsstr(cLine, cCharacter) != NULL) {
+					free(cLine);
+					free(cCharacter);
+					if (!clickControl(pControl))
+						return FALSE;
 
-        if (cText != NULL) {
-            if (!cText->wText[0])
-                return FALSE;
+					// OK Button
+					// Bobode Sleep(7000);
+					pControl = findControl(CONTROL_BUTTON, (const wchar_t*)NULL, -1, 627, 572, 128, 35);
+					if (pControl) {
+						if (!clickControl(pControl))
+							return FALSE;
 
-            wchar_t* cLine = _wcsdup(cText->wText[0]);
-            wchar_t* cCharacter = _wcsdup(szCharacter);
-            StringToLower(cLine);
-            StringToLower(cCharacter);
+						return TRUE;
+					} else {
+						return FALSE;
+					}
 
-            if (wcslen(cLine) == wcslen(cCharacter) && wcsstr(cLine, cCharacter) != NULL) {
-                free(cLine);
-                free(cCharacter);
-                if (!clickControl(pControl))
-                    return FALSE;
+				} else {
+					free(cLine);
+					free(cCharacter);
+				}
+			}
+			pControl = pControl->pNext;
+		}
 
-                // OK Button
-                // Bobode Sleep(7000);
-                pControl = findControl(CONTROL_BUTTON, (const wchar_t*)NULL, -1, 627, 572, 128, 35);
-                if (pControl) {
-                    if (!clickControl(pControl))
-                        return FALSE;
+		wchar_t* lastChar = _wcsdup(LastCharacter());
 
-                    return TRUE;
-                } else
-                    return FALSE;
+		// Scroll down a bit
+		if (lastChar) {
+			SendMouseClick(586, 456, 0);
+			Sleep(100);
+			SendMouseClick(586, 456, 1);
+			Sleep(100);
+		}
+		else {
+			return FALSE;
+		}
 
-            } else {
-                free(cLine);
-                free(cCharacter);
-            }
-        }
-        pControl = pControl->pNext;
-    }
+		wchar_t* currentLastChar = _wcsdup(LastCharacter());
+
+		isDifferentLastChar = true;
+		if (wcslen(lastChar) == wcslen(currentLastChar) && wcsstr(lastChar, currentLastChar) != NULL) {			
+			isDifferentLastChar = false;
+		}
+
+		free(lastChar);
+        free(currentLastChar);
+	} while (isDifferentLastChar);
+    
     return FALSE;
 }
 
